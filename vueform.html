@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/latest/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://uicdn.toast.com/tui.date-picker/latest/tui-date-picker.css">
+<script src="https://uicdn.toast.com/tui.date-picker/latest/tui-date-picker.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+  <script>
+    //url 패러미터 값 추출 메소드
+  function getQueryStringObject() { 
+    var a = window.location.search.substr(1).split('&');
+    if (a == "") return {};
+    var b = {};
+    for (var i = 0; i < a.length; ++i) {
+        var p = a[i].split('=', 2);
+        if (p.length == 1)
+            b[p[0]] = "";
+        else
+            b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+    }
+    return b;
+}
+
+
+</script>
+  <title>휴가봇 휴가 입력 폼</title>
+</head>
+
+<body>
+  <!-- BOOTSTRAP 2 8 2 RATIO-->
+  <div class="col-md-2"></div>
+  <div class="col-md-8 center-block mainArea" id="app">
+    <img src="./hugabot.png" style="width:100%">
+    <br/>
+    <div>
+    </div>
+    <h3 class="headTitle">휴가 입력 폼</h3>
+    <h5 class="headTitle">{{message}}</h5>
+    <h5 class="headTitle">휴가 유형</h5>
+
+    <select  class="form-select"  @change="onChange($event)" style="height: 30px;" v-model="type">
+      <option disabled value="">휴가 유형을 설정하세요</option>
+      <option value='SO'>휴가 (1일)</option>
+      <option value='LO'>휴가 (2일 이상)</option>
+      <option value="AH">오전 반차</option>
+      <option value="PH">오후 반차</option>
+      <option value="AQ">오전 반반차</option>
+      <option value="PQ">오후 반반차</option>
+    </select>
+    <!-- SO LO AH PH AQ PQ-->
+
+
+  
+  <div id="tui-date-picker-container" style="margin-top: -1px;"></div>
+
+    <div v-if='type==="SO"'>
+
+      <h5 class="headTitle">휴가일</h5>
+      <input class='form' type="date" v-model="startDate" />
+
+    </div>
+    <div v-else-if='type=="LO"'>
+      <h5 class="headTitle">휴가 시작일</h5>
+      <input class='form' type="date" v-model="startDate" />
+      <h5 class="headTitle">휴가 종료일</h5>
+      <input class='form' type="date" v-model="endDate" />
+    </div>
+    <div v-else-if='type=="AH"'>
+      <h5 class="headTitle">오전 반차 시작일</h5>
+      <input class='form' type="date" v-model="startDate" />
+    </div>
+    <div v-else-if='type=="PH"'>
+      <h5 class="headTitle">오후 반차 시작일</h5>
+      <input class='form' type="date" v-model="startDate" />
+    </div>
+    <div v-else-if='type=="AQ"'>
+      <h5 class="headTitle">오전 반반차 시작일</h5>
+      <input class='form' type="date" v-model="startDate" />
+    </div>
+    <div v-else-if='type=="PQ"'>
+      <h5 class="headTitle">오후 반반차 시작일</h5>
+      <input class='form' type="date" v-model="startDate" />
+    </div>
+
+    <p id="errmsg">{{errmsg}}</p>
+    <!-- ERR MESSAGE OUTPUT HERE-->
+
+    <h5 class="headTitle" style="margin-bottom: 5px; text-align: left;">휴가 사유</h5>
+    <textarea class="form-control" type="text" style="height: 100px; width:100%;" v-model="content" placeholder="휴가 사유를 입력하세요"></textarea>
+    <br/>
+
+    <div class="btnArea">
+      <div class="row">
+        <div class="col-md-6 noPad"> <button type="button" id="submitBtn" class="btn btn-lg btn-primary menuBtn" v-on:click="onButtonSubmit">제출</button></div>
+        <div class="col-md-6 noPad">     <button type="button" id="closeBtn" class="btn btn-lg btn-outline-danger menuBtn" v-on:click="closeWindow">닫기</button> </div>
+      </div>
+    </div>
+
+   <!-- <button type="button" class="btn btn-secondary" v-on:click="onButtonSubmit2">패러미터 확인!</button> -->
+  </div>
+  <div class="col-md-1"></div>
+     
+</div>
+
+  </div>
+
+  <script>
+var DatePicker = tui.DatePicker;
+var qs = getQueryStringObject();
+var name1 = qs.name; // 925641
+var decname= decodeURI(name1);
+var empId = qs.empid; // 1666020
+var teamId = qs.teamid; // 10
+
+
+    var app = new Vue({
+      el: "#app",
+      data: {
+        message: decname+"님 안녕하세요!",
+        selected: "",
+        type: "",
+        empId: empId,
+        name: decname,
+        teamId: teamId,
+        startDate: "",
+        endDate: "",
+        content: "",
+        errmsg: "",
+      },
+
+      methods: {
+
+
+        onButtonSubmit2: function (e) {
+          if (!this.endDate || this.endDate.length == 0) {
+            this.endDate = this.startDate;
+          }
+          if(this.content==""){
+            this.content="개인사유";
+          }
+          var params = {}
+          params.empId = this.empId;
+          params.content = this.content || '개인사유';
+          params.startDate = this.startDate;
+          params.endDate = this.endDate;
+          params.type = this.type;
+          // `event` 는 네이티브 DOM 이벤트입니다
+        },
+
+        onChange: function(e){
+
+          this.startDate="";
+          this.endDate="";
+        },
+
+        //ERR CONDITION FILTERING FROM TYPED FORM BY USER
+        onButtonSubmit: function (e) {
+          if (!this.endDate || this.endDate.length == 0) {
+            this.endDate = this.startDate;
+          }
+          if(this.content==""){
+            this.content="개인사유";
+          }
+          if(this.type==""){
+            alert("휴가 종류를 입력해주세요!");
+            this.errmsg="휴가 종류를 입력해주세요!";
+          }else if(this.startDate==""){
+            alert("휴가 시작일을 입력해주세요!");
+            this.errmsg="휴가 시작일을 입력해주세요!";
+          }else if(this.type=="LO"&&this.endDate==""){
+            alert("휴가 종료일을 입력해주세요!");
+            this.errmsg="휴가 종료일을 입력해주세요!";
+          }else if(this.startDate>this.endDate){
+            alert("휴가 종료일은 휴가 시작일보다 먼저일 수 없습니다!");
+            this.errmsg="휴가 종료일은 휴가 시작일보다 먼저일 수 없습니다!";
+          }else if(this.name==undefined){
+            alert("등록되지 않은 회원입니다!");
+          }
+          else{
+
+          var params = {}
+          params.empId = this.empId;                    //직원 아이디
+          params.name = this.name;                      //직원 이름
+          params.content = this.content || '개인사유';   //휴가사유
+          params.startDate = this.startDate;            //휴가 시작일
+          params.endDate = this.endDate;                //휴가 종료일
+          params.type = this.type;                      //휴가 종류
+          params.teamId = this.teamId;                  //팀 아이디
+          decodeURI()
+
+            //AJAX POST CONNECTION WITH PARAMETERS
+          $.ajax({
+						type: "POST",
+						//url: "https://463d2ocmf7.execute-api.ap-northeast-2.amazonaws.com/vacation/vacation",
+						data: JSON.stringify(params),
+						dataType: 'json',
+						contentType:"application/json; charset=UTF-8",
+						success: function(res) {
+              this.errmsg="";
+								alert("성공적으로 전송되었습니다.");
+                alert(res);
+						}
+					});
+
+          // 메소드 안에서 사용하는 `this` 는 Vue 인스턴스를 가리킵니다
+          alert('Hello ' + this.name + this.startDate + "" + this.content + "" + this.endDate +"팀아이디"+ this.teamId + this.type+"!!!!!")
+        }
+
+        },
+        closeWindow: function (e) {
+          window.open('','_self').close(); 
+        },
+      }
+
+
+    });
+
+
+  </script>
+</body>
+<style>
+  h3,h5{
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .form {
+    width: 50%;
+    text-align:  left;
+  }
+
+  .headTitle {
+    margin-bottom: 20px !important;
+    text-align: left;
+  }
+
+  .button {
+    width: 40%;
+    height: 50px;
+    font-size: 15px;
+    font-family: 'Noto Sans KR', sans-serif;
+    margin-bottom: 20px !important;
+  }
+
+  .mainArea{
+    padding-left:30px;
+    padding-right:30px;
+  }
+
+  input{
+    height: 40px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300 !important;
+    margin-bottom: 20px !important;
+  }
+
+  select{
+    width: 50%;
+    height: 40px;
+    font-family: 'Noto Sans KR', sans-serif !important;
+    font-weight: 300 !important;
+    margin-bottom: 20px !important;
+  }
+
+  textarea{
+    font-family: 'Noto Sans KR', sans-serif !important;
+    font-weight: 300 !important;
+  }
+
+
+  #errmsg{
+    color: red;
+  }
+
+  .menuBtn{
+    width: 100%;
+    height: 60px;
+    padding-left: 0px !important; 
+    border-radius: 0px;
+  }
+
+  .noPad{
+    padding-right: 20px !important; 
+  }
+
+/*c5d632*/
+  #submitBtn{
+    background-color: #00AB9f !important;
+    border: none;
+  }
+
+</style>
+
+</html>
